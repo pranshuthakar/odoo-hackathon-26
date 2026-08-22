@@ -4,11 +4,508 @@
 
 {% block content %}
 <section class="content-container itinerary-view">
-  <div class="search-controls"><label class="search-field"><i class="icon icon-search"></i><input type="search" placeholder="Search your itinerary"></label><button class="control-button" type="button"><i class="icon icon-layout-grid"></i> Group by <i class="icon icon-chevron-down"></i></button><button class="control-button" type="button"><i class="icon icon-sliders-horizontal"></i> Filter <i class="icon icon-chevron-down"></i></button><button class="control-button" type="button"><i class="icon icon-arrow-down-up"></i> Sort by <i class="icon icon-chevron-down"></i></button></div>
-  <div class="itinerary-heading"><div><p class="eyebrow">Kyoto, Japan · 12–18 Sep 2026</p><h1>Itinerary for a selected place</h1><p>Seven days of temples, tucked-away cafés, and unhurried discovery.</p></div><div class="total-budget"><i class="icon icon-wallet-cards"></i><span><small>Total planned budget</small><strong>$1,850</strong></span></div></div>
-  <div class="day-tabs" role="tablist" aria-label="Itinerary days"><button class="active" role="tab" type="button">Day 1<span>Sep 12</span></button><button role="tab" type="button">Day 2<span>Sep 13</span></button><button role="tab" type="button">Day 3<span>Sep 14</span></button><button role="tab" type="button">Day 4<span>Sep 15</span></button><button role="tab" type="button">Day 5<span>Sep 16</span></button></div>
-  {# `activities` mirrors the rows you can later pass from Flask for the selected trip day. #}
-  <section class="day-card card-surface"><div class="day-card-header"><div><span class="status-label ongoing">Day 1</span><h2>Arrival & Gion at golden hour</h2><p>Saturday, 12 September</p></div><button class="button button-secondary" type="button"><i class="icon icon-plus"></i> Add activity</button></div><div class="itinerary-table"><div class="table-head"><span>Physical Activity</span><span>Expense</span></div>{% set activities = [('Check in at The Hotel Mitsui', 'Hotel & check-in', '$320'), ('Walk the streets of Gion', 'Neighbourhood walk', 'Free'), ('Kaiseki dinner at Gion Karyo', 'Dinner reservation', '$145'), ('Evening tea at Camellia', 'Tea experience', '$28')] %}{% for activity, note, expense in activities %}<div class="activity-row"><div class="activity-name"><span class="activity-icon"><i class="icon {% if loop.index == 1 %}icon-hotel{% elif loop.index == 2 %}icon-footprints{% elif loop.index == 3 %}icon-utensils{% else %}icon-coffee{% endif %}"></i></span><span><strong>{{ activity }}</strong><small>{{ note }}</small></span></div><div class="expense"><strong>{{ expense }}</strong><button type="button" aria-label="Edit activity"><i class="icon icon-pencil"></i></button></div></div>{% if not loop.last %}<div class="activity-connector"><i class="icon icon-arrow-down"></i></div>{% endif %}{% endfor %}</div><div class="day-total"><span>Day 1 total</span><strong>$493</strong></div></section>
-  <section class="day-card card-surface"><div class="day-card-header"><div><span class="status-label upcoming">Day 2</span><h2>Shrines & forest paths</h2><p>Sunday, 13 September</p></div><button class="button button-secondary" type="button"><i class="icon icon-plus"></i> Add activity</button></div><div class="itinerary-table"><div class="table-head"><span>Physical Activity</span><span>Expense</span></div>{% set day_two_activities = [('Fushimi Inari before sunrise', 'Guided hike', '$42'), ('Lunch near Kiyomizu-dera', 'Local lunch', '$24'), ('Ninenzaka & Sannenzaka walk', 'Self-guided exploration', 'Free')] %}{% for activity, note, expense in day_two_activities %}<div class="activity-row"><div class="activity-name"><span class="activity-icon"><i class="icon {% if loop.index == 1 %}icon-mountain{% elif loop.index == 2 %}icon-utensils{% else %}icon-footprints{% endif %}"></i></span><span><strong>{{ activity }}</strong><small>{{ note }}</small></span></div><div class="expense"><strong>{{ expense }}</strong><button type="button" aria-label="Edit activity"><i class="icon icon-pencil"></i></button></div></div>{% if not loop.last %}<div class="activity-connector"><i class="icon icon-arrow-down"></i></div>{% endif %}{% endfor %}</div><div class="day-total"><span>Day 2 total</span><strong>$66</strong></div></section>
+
+  <div class="search-controls">
+    <label class="search-field">
+      <i class="icon icon-search"></i>
+      <input type="search" placeholder="Search your itinerary">
+    </label>
+
+    <button class="control-button" type="button">
+      <i class="icon icon-layout-grid"></i> Group by
+      <i class="icon icon-chevron-down"></i>
+    </button>
+
+    <button class="control-button" type="button">
+      <i class="icon icon-sliders-horizontal"></i> Filter
+      <i class="icon icon-chevron-down"></i>
+    </button>
+
+    <button class="control-button" type="button">
+      <i class="icon icon-arrow-down-up"></i> Sort by
+      <i class="icon icon-chevron-down"></i>
+    </button>
+  </div>
+
+  <div class="itinerary-heading">
+    <div>
+      <p class="eyebrow">
+    {{ trip.name }} · {{ trip.start_date }} → {{ trip.end_date }}
+</p>
+      <h1>{{ trip.name }}</h1>
+      <p>{{ trip.description }}</p>    </div>
+
+    <div class="total-budget">
+      <i class="icon icon-wallet-cards"></i>
+      <span>
+        <small>Total planned budget</small>
+        <strong>$1,850</strong>
+      </span>
+    </div>
+  </div>
+
+
+  <!-- DAY TABS -->
+  <div class="day-tabs" role="tablist" aria-label="Itinerary days">
+
+    <button class="day-tab active"
+            data-day="1"
+            role="tab"
+            type="button">
+      Day 1
+      <span>Sep 12</span>
+    </button>
+
+    <button class="day-tab"
+            data-day="2"
+            role="tab"
+            type="button">
+      Day 2
+      <span>Sep 13</span>
+    </button>
+
+    <button class="day-tab"
+            data-day="3"
+            role="tab"
+            type="button">
+      Day 3
+      <span>Sep 14</span>
+    </button>
+
+    <button class="day-tab"
+            data-day="4"
+            role="tab"
+            type="button">
+      Day 4
+      <span>Sep 15</span>
+    </button>
+
+    <button class="day-tab"
+            data-day="5"
+            role="tab"
+            type="button">
+      Day 5
+      <span>Sep 16</span>
+    </button>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- DAY 1 -->
+  <!-- ========================= -->
+
+  <section class="day-card card-surface itinerary-day"
+           data-day-content="1">
+
+    <div class="day-card-header">
+      <div>
+        <span class="status-label ongoing">Day 1</span>
+        <h2>Arrival & Gion at golden hour</h2>
+        <p>Saturday, 12 September</p>
+      </div>
+
+      <button class="button button-secondary" type="button">
+        <i class="icon icon-plus"></i>
+        Add activity
+      </button>
+    </div>
+
+    <div class="itinerary-table">
+
+      <div class="table-head">
+        <span>Physical Activity</span>
+        <span>Expense</span>
+      </div>
+
+      {% set activities = [
+        ('Check in at The Hotel Mitsui', 'Hotel & check-in', '$320'),
+        ('Walk the streets of Gion', 'Neighbourhood walk', 'Free'),
+        ('Kaiseki dinner at Gion Karyo', 'Dinner reservation', '$145'),
+        ('Evening tea at Camellia', 'Tea experience', '$28')
+      ] %}
+
+      {% for activity, note, expense in activities %}
+
+      <div class="activity-row">
+
+        <div class="activity-name">
+
+          <span class="activity-icon">
+            <i class="icon
+              {% if loop.index == 1 %}
+                icon-hotel
+              {% elif loop.index == 2 %}
+                icon-footprints
+              {% elif loop.index == 3 %}
+                icon-utensils
+              {% else %}
+                icon-coffee
+              {% endif %}
+            "></i>
+          </span>
+
+          <span>
+            <strong>{{ activity }}</strong>
+            <small>{{ note }}</small>
+          </span>
+
+        </div>
+
+        <div class="expense">
+          <strong>{{ expense }}</strong>
+
+          <button type="button" aria-label="Edit activity">
+            <i class="icon icon-pencil"></i>
+          </button>
+        </div>
+
+      </div>
+
+      {% if not loop.last %}
+      <div class="activity-connector">
+        <i class="icon icon-arrow-down"></i>
+      </div>
+      {% endif %}
+
+      {% endfor %}
+
+    </div>
+
+    <div class="day-total">
+      <span>Day 1 total</span>
+      <strong>$493</strong>
+    </div>
+
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- DAY 2 -->
+  <!-- ========================= -->
+
+  <section class="day-card card-surface itinerary-day"
+           data-day-content="2"
+           style="display: none;">
+
+    <div class="day-card-header">
+
+      <div>
+        <span class="status-label upcoming">Day 2</span>
+        <h2>Shrines & forest paths</h2>
+        <p>Sunday, 13 September</p>
+      </div>
+
+      <button class="button button-secondary" type="button">
+        <i class="icon icon-plus"></i>
+        Add activity
+      </button>
+
+    </div>
+
+    <div class="itinerary-table">
+
+      <div class="table-head">
+        <span>Physical Activity</span>
+        <span>Expense</span>
+      </div>
+
+      {% set day_two_activities = [
+        ('Fushimi Inari before sunrise', 'Guided hike', '$42'),
+        ('Lunch near Kiyomizu-dera', 'Local lunch', '$24'),
+        ('Ninenzaka & Sannenzaka walk', 'Self-guided exploration', 'Free')
+      ] %}
+
+      {% for activity, note, expense in day_two_activities %}
+
+      <div class="activity-row">
+
+        <div class="activity-name">
+
+          <span class="activity-icon">
+            <i class="icon
+              {% if loop.index == 1 %}
+                icon-mountain
+              {% elif loop.index == 2 %}
+                icon-utensils
+              {% else %}
+                icon-footprints
+              {% endif %}
+            "></i>
+          </span>
+
+          <span>
+            <strong>{{ activity }}</strong>
+            <small>{{ note }}</small>
+          </span>
+
+        </div>
+
+        <div class="expense">
+
+          <strong>{{ expense }}</strong>
+
+          <button type="button" aria-label="Edit activity">
+            <i class="icon icon-pencil"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+      {% if not loop.last %}
+      <div class="activity-connector">
+        <i class="icon icon-arrow-down"></i>
+      </div>
+      {% endif %}
+
+      {% endfor %}
+
+    </div>
+
+    <div class="day-total">
+      <span>Day 2 total</span>
+      <strong>$66</strong>
+    </div>
+
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- DAY 3 -->
+  <!-- ========================= -->
+
+  <section class="day-card card-surface itinerary-day"
+           data-day-content="3"
+           style="display: none;">
+
+    <div class="day-card-header">
+      <div>
+        <span class="status-label upcoming">Day 3</span>
+        <h2>Explore Kyoto</h2>
+        <p>Monday, 14 September</p>
+      </div>
+
+      <button class="button button-secondary" type="button">
+        <i class="icon icon-plus"></i>
+        Add activity
+      </button>
+    </div>
+
+    <div class="itinerary-table">
+
+      <div class="table-head">
+        <span>Physical Activity</span>
+        <span>Expense</span>
+      </div>
+
+      <div class="activity-row">
+
+        <div class="activity-name">
+
+          <span class="activity-icon">
+            <i class="icon icon-footprints"></i>
+          </span>
+
+          <span>
+            <strong>Explore Kyoto</strong>
+            <small>Free exploration</small>
+          </span>
+
+        </div>
+
+        <div class="expense">
+          <strong>Free</strong>
+
+          <button type="button" aria-label="Edit activity">
+            <i class="icon icon-pencil"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="day-total">
+      <span>Day 3 total</span>
+      <strong>$0</strong>
+    </div>
+
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- DAY 4 -->
+  <!-- ========================= -->
+
+  <section class="day-card card-surface itinerary-day"
+           data-day-content="4"
+           style="display: none;">
+
+    <div class="day-card-header">
+      <div>
+        <span class="status-label upcoming">Day 4</span>
+        <h2>Discover Kyoto</h2>
+        <p>Tuesday, 15 September</p>
+      </div>
+
+      <button class="button button-secondary" type="button">
+        <i class="icon icon-plus"></i>
+        Add activity
+      </button>
+    </div>
+
+    <div class="itinerary-table">
+
+      <div class="table-head">
+        <span>Physical Activity</span>
+        <span>Expense</span>
+      </div>
+
+      <div class="activity-row">
+
+        <div class="activity-name">
+
+          <span class="activity-icon">
+            <i class="icon icon-map-pin"></i>
+          </span>
+
+          <span>
+            <strong>Kyoto sightseeing</strong>
+            <small>Explore local attractions</small>
+          </span>
+
+        </div>
+
+        <div class="expense">
+          <strong>Free</strong>
+
+          <button type="button" aria-label="Edit activity">
+            <i class="icon icon-pencil"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="day-total">
+      <span>Day 4 total</span>
+      <strong>$0</strong>
+    </div>
+
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- DAY 5 -->
+  <!-- ========================= -->
+
+  <section class="day-card card-surface itinerary-day"
+           data-day-content="5"
+           style="display: none;">
+
+    <div class="day-card-header">
+      <div>
+        <span class="status-label upcoming">Day 5</span>
+        <h2>Last day in Kyoto</h2>
+        <p>Wednesday, 16 September</p>
+      </div>
+
+      <button class="button button-secondary" type="button">
+        <i class="icon icon-plus"></i>
+        Add activity
+      </button>
+    </div>
+
+    <div class="itinerary-table">
+
+      <div class="table-head">
+        <span>Physical Activity</span>
+        <span>Expense</span>
+      </div>
+
+      <div class="activity-row">
+
+        <div class="activity-name">
+
+          <span class="activity-icon">
+            <i class="icon icon-coffee"></i>
+          </span>
+
+          <span>
+            <strong>Morning café visit</strong>
+            <small>Relax before departure</small>
+          </span>
+
+        </div>
+
+        <div class="expense">
+          <strong>$15</strong>
+
+          <button type="button" aria-label="Edit activity">
+            <i class="icon icon-pencil"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="day-total">
+      <span>Day 5 total</span>
+      <strong>$15</strong>
+    </div>
+
+  </section>
+
 </section>
+
+
+<!-- ========================= -->
+<!-- DAY TAB JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tabs = document.querySelectorAll(".day-tab");
+    const days = document.querySelectorAll(".itinerary-day");
+
+    tabs.forEach(function (tab) {
+
+        tab.addEventListener("click", function () {
+
+            const selectedDay = this.dataset.day;
+
+            // Remove active state from all tabs
+            tabs.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            // Activate clicked tab
+            this.classList.add("active");
+
+            // Hide all day sections
+            days.forEach(function (day) {
+                day.style.display = "none";
+            });
+
+            // Show selected day
+            const selectedSection =
+                document.querySelector(
+                    '[data-day-content="' + selectedDay + '"]'
+                );
+
+            if (selectedSection) {
+                selectedSection.style.display = "block";
+            }
+
+        });
+
+    });
+
+});
+</script>
+
 {% endblock %}

@@ -13,6 +13,7 @@ from db import (
     add_activity,
     get_activities_by_stop,
     get_budget_breakdown,
+     _get_connection,
 )
 
 app = Flask(__name__)
@@ -61,10 +62,45 @@ def create_trip_page():
 def itinerary_builder_page():
     return render_template("itinerary_builder.html")
 
-
 @app.get("/itinerary-view", endpoint="itinerary_view")
 def itinerary_view_page():
-    return render_template("itinerary_view.html")
+    trip_id = request.args.get("trip_id", type=int)
+
+    if not trip_id:
+        return "Trip ID is required", 400
+
+    conn = _get_connection()
+
+    try:
+        cursor = conn.execute(
+            """
+            SELECT id, name, start_date, end_date, description
+            FROM trips
+            WHERE id = ?
+            """,
+            (trip_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row:
+            return "Trip not found", 404
+
+        trip = {
+            "id": row[0],
+            "name": row[1],
+            "start_date": row[2],
+            "end_date": row[3],
+            "description": row[4]
+        }
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "itinerary_view.html",
+        trip=trip
+    )
 
 
 @app.get("/my-trips", endpoint="my_trips")

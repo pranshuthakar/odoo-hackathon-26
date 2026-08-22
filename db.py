@@ -216,7 +216,70 @@ def get_stops_by_trip(trip_id):
 # ACTIVITIES  (things to do at a stop)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def add_activity(stop_id, name, cost=0.0, duration="", category="general"):
+def add_activity(
+    stop_id,
+    name,
+    cost=0.0,
+    duration="",
+    category="general",
+    day_number=1,
+    time=""
+):
+    """Create an activity for a stop."""
+
+    conn = _get_connection()
+
+    try:
+        cursor = conn.execute(
+            """
+            INSERT INTO activities
+            (
+                stop_id,
+                name,
+                cost,
+                duration,
+                category,
+                day_number,
+                time
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                stop_id,
+                name,
+                cost,
+                duration,
+                category,
+                day_number,
+                time
+            )
+        )
+
+        conn.commit()
+
+        activity_id = cursor.lastrowid
+
+        row = conn.execute(
+            """
+            SELECT
+                id,
+                stop_id,
+                name,
+                cost,
+                duration,
+                category,
+                day_number,
+                time
+            FROM activities
+            WHERE id = ?
+            """,
+            (activity_id,)
+        ).fetchone()
+
+        return dict(row)
+
+    finally:
+        conn.close()
     """
     Add an activity to a stop.
 
@@ -334,10 +397,44 @@ def get_budget_breakdown(trip_id):
 # ═══════════════════════════════════════════════════════════════════════════
 # Running  `python db.py`  creates the database (if needed) and inserts
 # a small set of demo data so you can test immediately.
+def migrate_activities_table():
+    """Add day_number and time columns to existing activities table."""
 
+    conn = _get_connection()
+
+    try:
+        columns = conn.execute(
+            "PRAGMA table_info(activities);"
+        ).fetchall()
+
+        column_names = [column["name"] for column in columns]
+
+        if "day_number" not in column_names:
+            conn.execute(
+                """
+                ALTER TABLE activities
+                ADD COLUMN day_number INTEGER NOT NULL DEFAULT 1;
+                """
+            )
+            print("✅ Added day_number column.")
+
+        if "time" not in column_names:
+            conn.execute(
+                """
+                ALTER TABLE activities
+                ADD COLUMN time TEXT DEFAULT '';
+                """
+            )
+            print("✅ Added time column.")
+
+        conn.commit()
+
+    finally:
+        conn.close()
 if __name__ == "__main__":
     # 1. Create the tables (safe to run repeatedly)
     init_db()
+    migrate_activities_table()
 
     # 2. Insert demo data only if the DB is empty
     conn = _get_connection()
