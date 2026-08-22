@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome back · GlobeTrotter{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-copy">
+    <p class="eyebrow">Plan beyond the map</p>
+    <h1>Every great trip starts with a little curiosity.</h1>
+    <p>Keep your places, plans, and travel memories beautifully in one home.</p>
+    <div class="auth-preview">
+      <img src="https://picsum.photos/seed/amalfi-globetrotter/920/700" alt="Coastal Italian village">
+      <span><i class="icon icon-map-pin"></i> Amalfi Coast, Italy</span>
+    </div>
+  </div>
+
+  <form class="auth-card" action="#" method="post">
+    <div class="avatar-placeholder" aria-hidden="true"><i class="icon icon-compass"></i></div>
+    <div class="auth-heading">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Log in to your adventures</h2>
+      <p>Pick up right where your wanderlust left off.</p>
+    </div>
+    <label for="email">Email Address <span>*</span></label>
+    <div class="input-with-icon"><i class="icon icon-mail"></i><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required></div>
+    <label for="password">Password <span>*</span></label>
+    <div class="input-with-icon"><i class="icon icon-lock-keyhole"></i><input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required></div>
+    <div class="form-meta"><label class="check-label"><input type="checkbox" name="remember"> <span>Remember me</span></label><a href="#">Forgot password?</a></div>
+    <button class="button button-primary button-full" type="submit">Login <i class="icon icon-arrow-right"></i></button>
+    <p class="auth-footer">New to GlobeTrotter? <a href="{{ url_for('register') }}">Create an account</a></p>
+  </form>
+</section>
+{% endblock %}

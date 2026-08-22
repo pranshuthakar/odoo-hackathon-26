@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Discover · GlobeTrotter{% endblock %}
+
+{% block content %}
+<section class="hero-banner">
+  <img src="https://picsum.photos/seed/globetrotter-hero/1800/780" alt="Sunlit mountain landscape">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="eyebrow light">Make room for wonder</p>
+    <h1>Where will your story go next?</h1>
+    <p>Curate effortless journeys, one unforgettable place at a time.</p>
+    <a class="button button-coral" href="{{ url_for('create_trip') }}">Start planning <i class="icon icon-arrow-up-right"></i></a>
+  </div>
+</section>
+
+<section class="content-container dashboard-content">
+  {# Replace these placeholder collections with your own Jinja data, e.g. {% raw %}{{ trip.name }}{% endraw %}. #}
+  <div class="search-controls">
+    <label class="search-field"><i class="icon icon-search"></i><input type="search" placeholder="Search destinations, activities, or trips"></label>
+    <button class="control-button" type="button"><i class="icon icon-layout-grid"></i> Group by <i class="icon icon-chevron-down"></i></button>
+    <button class="control-button" type="button"><i class="icon icon-sliders-horizontal"></i> Filter <i class="icon icon-chevron-down"></i></button>
+    <button class="control-button" type="button"><i class="icon icon-arrow-down-up"></i> Sort by <i class="icon icon-chevron-down"></i></button>
+  </div>
+
+  <div class="section-heading"><div><p class="eyebrow">Inspiration, curated</p><h2>Top Regional Selections</h2></div><a class="inline-link" href="#">Explore all <i class="icon icon-arrow-right"></i></a></div>
+  <div class="region-grid">
+    {% set regions = [('Santorini', 'Greece', 'santorini'), ('Kyoto', 'Japan', 'kyoto'), ('Bali', 'Indonesia', 'bali'), ('Swiss Alps', 'Switzerland', 'alps'), ('Marrakech', 'Morocco', 'marrakech')] %}
+    {% for name, country, seed in regions %}
+    <a class="region-card" href="#"><img src="https://picsum.photos/seed/{{ seed }}-globetrotter/560/560" alt="{{ name }}"><div><h3>{{ name }}</h3><p>{{ country }}</p></div></a>
+    {% endfor %}
+  </div>
+
+  <div class="section-heading trips-heading"><div><p class="eyebrow">Memories in motion</p><h2>Previous Trips</h2></div><a class="inline-link" href="{{ url_for('my_trips') }}">View all trips <i class="icon icon-arrow-right"></i></a></div>
+  <div class="trip-grid">
+    {% set trips = [('A coastal escape', 'Amalfi Coast, Italy', '12–18 Sep 2026', 'amalfi'), ('City lights & quiet lanes', 'Kyoto, Japan', '03–10 Apr 2026', 'kyoto-trip'), ('Above the clouds', 'Swiss Alps, Switzerland', '15–21 Jan 2026', 'swiss-trip')] %}
+    {% for name, place, date, seed in trips %}
+    <article class="trip-card"><div class="trip-image"><img src="https://picsum.photos/seed/{{ seed }}/900/570" alt="{{ place }}"><span class="trip-status completed">Completed</span></div><div class="trip-card-body"><p class="trip-location"><i class="icon icon-map-pin"></i> {{ place }}</p><h3>{{ name }}</h3><div class="trip-detail"><span><i class="icon icon-calendar-days"></i> {{ date }}</span><a href="{{ url_for('itinerary_view') }}" aria-label="View trip"><i class="icon icon-arrow-up-right"></i></a></div></div></article>
+    {% endfor %}
+  </div>
+</section>
+<a class="floating-action" href="{{ url_for('create_trip') }}"><i class="icon icon-plus"></i><span>Plan a Trip</span></a>
+{% endblock %}

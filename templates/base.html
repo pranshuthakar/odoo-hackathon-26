@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GlobeTrotter makes every journey feel thoughtfully planned.">
+  <title>{% block title %}GlobeTrotter{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  {# Shared navigation: route endpoint names can be changed to match your Flask app. #}
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="{{ url_for('dashboard') }}" aria-label="GlobeTrotter home">
+        <span class="brand-mark"><i class="icon icon-compass"></i></span>
+        <span>Globe<span>Trotter</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a href="{{ url_for('dashboard') }}">Discover</a>
+        <a href="{{ url_for('my_trips') }}">My trips</a>
+      </nav>
+      <button class="icon-button" type="button" aria-label="Search"><i class="icon icon-search"></i></button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
