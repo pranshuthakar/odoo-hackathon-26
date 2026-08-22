@@ -1,4 +1,8 @@
+import os
+import json
+
 from flask import Flask, request, jsonify, session, redirect, url_for, render_template
+from google import genai
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from schema import init_db
@@ -20,6 +24,67 @@ app = Flask(__name__)
 
 # Change this before production.
 app.secret_key = "globetrotter-dev-secret-key"
+def generate_itinerary(destination, start_date, end_date):
+    api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key:
+        raise Exception("GEMINI_API_KEY is not set.")
+
+    client = genai.Client(api_key=api_key)
+
+    prompt = f"""
+Create a realistic travel itinerary.
+
+Destination: {destination}
+Start date: {start_date}
+End date: {end_date}
+
+Return ONLY valid JSON.
+Do not use markdown.
+Do not include ```json.
+
+The JSON must have this exact structure:
+
+{{
+  "days": [
+    {{
+      "day_number": 1,
+      "date": "YYYY-MM-DD",
+      "title": "Short title",
+      "activities": [
+        {{
+          "name": "Activity name",
+          "description": "Short description",
+          "cost": 25.00,
+          "category": "sightseeing",
+          "time": "09:00"
+        }}
+      ]
+    }}
+  ]
+}}
+
+Rules:
+- Create one day for every date between start_date and end_date.
+- Include 3 to 5 activities per day.
+- Use realistic activities for the destination.
+- cost must be a number. Use 0 for free activities.
+- category should be one of:
+  sightseeing, food, adventure, culture, transport, hotel, shopping
+- time should be in 24-hour format.
+"""
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=prompt
+    )
+
+    text = response.text.strip()
+
+    if text.startswith("```"):
+        text = text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)
 # =========================
 # FRONTEND PAGE ROUTES
 # =========================
@@ -280,6 +345,47 @@ def stop_belongs_to_trip(stop_id, trip_id):
 def create_new_trip():
     user_id = require_login()
 
+@app.post("/api/generate-itinerary")
+def generate_itinerary_api():
+    user_id = require_login()
+
+    if not user_id:
+        return jsonify({
+            "success": False,
+            "message": "Login required."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+
+    destination = data.get("destination", "").strip()
+    start_date = data.get("start_date", "").strip()
+    end_date = data.get("end_date", "").strip()
+
+    if not destination or not start_date or not end_date:
+        return jsonify({
+            "success": False,
+            "message": "Destination, start date and end date are required."
+        }), 400
+
+    try:
+        itinerary = generate_itinerary(
+            destination,
+            start_date,
+            end_date
+        )
+
+        return jsonify({
+            "success": True,
+            "itinerary": itinerary
+        })
+
+    except Exception as e:
+        print("GEMINI ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
     if not user_id:
         return jsonify({
             "success": False,

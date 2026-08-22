@@ -64,12 +64,14 @@ CREATE TABLE IF NOT EXISTS stops (
 
 CREATE_ACTIVITIES = """
 CREATE TABLE IF NOT EXISTS activities (
-    id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    stop_id  INTEGER NOT NULL,
-    name     TEXT    NOT NULL,
-    cost     REAL    NOT NULL DEFAULT 0.0,     -- monetary cost
-    duration TEXT    DEFAULT '',               -- e.g. '2 hours', '30 min'
-    category TEXT    DEFAULT 'general',        -- sightseeing, food, adventure…
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    stop_id     INTEGER NOT NULL,
+    name        TEXT    NOT NULL,
+    cost        REAL    NOT NULL DEFAULT 0.0,
+    duration    TEXT    DEFAULT '',
+    category    TEXT    DEFAULT 'general',
+    day_number  INTEGER NOT NULL DEFAULT 1,
+    time        TEXT    DEFAULT '',
 
     FOREIGN KEY (stop_id) REFERENCES stops (id) ON DELETE CASCADE
 );
