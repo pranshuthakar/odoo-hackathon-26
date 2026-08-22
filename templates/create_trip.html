@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Plan a new trip · GlobeTrotter{% endblock %}
+
+{% block content %}
+<section class="content-container form-page trip-planner">
+  <div class="page-intro"><a class="back-link" href="{{ url_for('dashboard') }}"><i class="icon icon-arrow-left"></i> Back to discover</a><p class="eyebrow">A new chapter awaits</p><h1>Plan a new trip</h1><p>Set the outline; we’ll help bring every memorable detail into focus.</p></div>
+  <div class="planner-layout">
+    <form class="planner-form card-surface" action="#" method="post">
+      <h2>Trip essentials</h2>
+      <div class="field-stack"><label for="trip-start">Start Date <span>*</span></label><div class="input-with-icon"><i class="icon icon-calendar-days"></i><input id="trip-start" type="date" name="start_date" required></div></div>
+      <div class="field-stack"><label for="trip-place">Select a Place <span>*</span></label><div class="input-with-icon"><i class="icon icon-map-pin"></i><select id="trip-place" name="place" required><option value="" selected disabled>Choose a destination</option><option>Kyoto, Japan</option><option>Lisbon, Portugal</option><option>Reykjavík, Iceland</option></select></div></div>
+      <div class="field-stack"><label for="trip-section-start">Start Date</label><div class="input-with-icon"><i class="icon icon-calendar-plus"></i><input id="trip-section-start" type="date" name="section_start_date"></div></div>
+      <div class="field-stack"><label for="trip-end">End Date <span>*</span></label><div class="input-with-icon"><i class="icon icon-calendar-check"></i><input id="trip-end" type="date" name="end_date" required></div></div>
+      <button class="button button-primary button-full" type="submit">Build itinerary <i class="icon icon-arrow-right"></i></button>
+    </form>
+    <aside class="planner-tip"><i class="icon icon-sparkles"></i><h3>Made for the way you travel</h3><p>Save an idea now. You can refine dates, budget, and every stop in your itinerary next.</p></aside>
+  </div>
+
+  {# Suggested activities are intentionally static placeholders until connected to your recommendation data. #}
+  <div class="section-heading suggestions-heading"><div><p class="eyebrow">A little spark</p><h2>Suggestions for Places to Visit/Activities</h2></div><button class="text-button" type="button">Refresh ideas <i class="icon icon-refresh-cw"></i></button></div>
+  <div class="suggestion-grid">
+    {% set suggestions = [('Sunrise hike', 'A beautiful early start', 'sunrise-hike'), ('Local food tour', 'Taste the city’s best', 'food-tour'), ('Hidden beaches', 'Find your quiet corner', 'hidden-beach'), ('Art & culture', 'Stories worth stepping into', 'art-culture'), ('Scenic train', 'Make the journey part of it', 'scenic-train'), ('Night market', 'A feast after dark', 'night-market')] %}
+    {% for title, subtitle, seed in suggestions %}
+    <article class="suggestion-card"><img src="https://picsum.photos/seed/{{ seed }}/700/500" alt="{{ title }}"><div><span class="skeleton-dot"></span><h3>{{ title }}</h3><p>{{ subtitle }}</p></div><button type="button" aria-label="Add {{ title }}"><i class="icon icon-plus"></i></button></article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

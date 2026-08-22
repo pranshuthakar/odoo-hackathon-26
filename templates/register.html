@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Join GlobeTrotter{% endblock %}
+
+{% block content %}
+<section class="form-page register-page">
+  <div class="page-intro centered-intro">
+    <p class="eyebrow">Start exploring</p>
+    <h1>Create your travel profile</h1>
+    <p>A few details now, a world of tailored trips ahead.</p>
+  </div>
+
+  <form class="registration-card" action="#" method="post">
+    <div class="profile-upload" aria-label="Profile photo placeholder">
+      <div class="avatar-placeholder"><i class="icon icon-camera"></i></div>
+      <button type="button" class="text-button">Add a photo</button>
+    </div>
+    <div class="form-grid">
+      <div><label for="first-name">First Name <span>*</span></label><input id="first-name" name="first_name" type="text" placeholder="Avery" autocomplete="given-name" required></div>
+      <div><label for="last-name">Last Name <span>*</span></label><input id="last-name" name="last_name" type="text" placeholder="Sharma" autocomplete="family-name" required></div>
+      <div><label for="register-email">Email Address <span>*</span></label><input id="register-email" name="email" type="email" placeholder="avery@example.com" autocomplete="email" required></div>
+      <div><label for="phone">Phone Number <span>*</span></label><input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" autocomplete="tel" required></div>
+      <div><label for="city">City <span>*</span></label><input id="city" name="city" type="text" placeholder="Mumbai" autocomplete="address-level2" required></div>
+      <div><label for="country">Country <span>*</span></label><input id="country" name="country" type="text" placeholder="India" autocomplete="country-name" required></div>
+      <div class="full-row"><label for="additional-info">Additional Information</label><textarea id="additional-info" name="additional_info" rows="4" placeholder="Tell us a little about your travel style, favourite destinations, or dream trip…"></textarea></div>
+    </div>
+    <button class="button button-primary button-full" type="submit">Register <i class="icon icon-sparkles"></i></button>
+    <p class="form-footnote"><span>*</span> Required fields &nbsp;·&nbsp; Already a member? <a href="{{ url_for('login') }}">Log in</a></p>
+  </form>
+</section>
+{% endblock %}

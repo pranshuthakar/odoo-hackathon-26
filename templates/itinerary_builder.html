@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Build itinerary · GlobeTrotter{% endblock %}
+
+{% block content %}
+<section class="content-container itinerary-builder">
+  <div class="page-intro split-intro"><div><p class="eyebrow">Your journey, your rhythm</p><h1>Build your itinerary</h1><p>Give each part of your trip the attention it deserves.</p></div><div class="trip-mini-summary"><i class="icon icon-map-pin"></i><span><strong>Kyoto, Japan</strong><small>12–18 September 2026</small></span></div></div>
+  <div class="builder-progress"><span class="active"></span><span class="active"></span><span></span><p>Step 2 of 3 · Shape your days</p></div>
+  {# Replace the example tuple list with an iterable of saved itinerary sections. #}
+  <div class="sections-list">
+    {% for number, title, description, dates, budget in [(1, 'Arrival & old Kyoto', 'Ease into the city with a gentle walk through Gion, a tea house visit, and dinner by the river.', '12 Sep to 13 Sep', '$220'), (2, 'Temples & mountain air', 'Leave room for Fushimi Inari at sunrise, forest trails, and a slow afternoon in Arashiyama.', '14 Sep to 16 Sep', '$380'), (3, 'Markets & modern corners', 'Balance local flavours at Nishiki Market with design stores, galleries, and your final toast.', '17 Sep to 18 Sep', '$260')] %}
+    <article class="itinerary-section card-surface"><div class="section-number">0{{ number }}</div><div class="section-content"><div class="section-topline"><div><p class="eyebrow">Section {{ number }}</p><h2>{{ title }}</h2></div><button class="icon-button small" type="button" aria-label="More options"><i class="icon icon-ellipsis"></i></button></div><p class="section-description">{{ description }}</p><div class="section-actions"><div class="date-range"><i class="icon icon-calendar-days"></i><span><small>Date Range</small>{{ dates }}</span></div><button class="budget-button" type="button"><i class="icon icon-wallet-cards"></i> Budget of this section <strong>{{ budget }}</strong></button></div></div></article>
+    {% endfor %}
+  </div>
+  <button class="add-section-button" type="button"><span><i class="icon icon-plus"></i></span> Add Another Section</button>
+  <div class="builder-footer"><a class="button button-secondary" href="#"><i class="icon icon-arrow-left"></i> Trip details</a><a class="button button-primary" href="{{ url_for('itinerary_view') }}">Preview itinerary <i class="icon icon-arrow-right"></i></a></div>
+</section>
+{% endblock %}
