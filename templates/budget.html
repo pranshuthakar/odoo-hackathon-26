@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Budget &amp; Cost Breakdown | GlobeTrotter</title>
+
+  <!-- Chart.js is loaded from a CDN, so no installation is needed. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #3d8ed4;
+      --mint: #39a98b;
+      --page: #f2f8fa;
+      --card: #ffffff;
+      --muted: #64748b;
+      --line: #dce9ed;
+      --danger: #c73737;
+      --danger-bg: #fff0f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--navy);
+      background: linear-gradient(145deg, #e8f6fb 0%, var(--page) 42%, #edf9f4 100%);
+    }
+
+    .page-container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--mint);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 { margin: 0; font-size: clamp(1.9rem, 4vw, 2.75rem); }
+    .subtitle { margin: 10px 0 28px; color: var(--muted); }
+
+    .summary-card, .chart-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 12px 32px rgba(27, 71, 94, 0.1);
+    }
+
+    .summary-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      border-left: 6px solid var(--mint);
+    }
+
+    .summary-label { display: block; color: var(--muted); font-size: 0.95rem; }
+    .total-cost { display: block; margin-top: 5px; font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 800; }
+    .summary-icon { font-size: 2.7rem; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .chart-card { padding: 24px; }
+    .chart-card h2 { margin: 0; font-size: 1.15rem; }
+    .chart-description { margin: 7px 0 20px; color: var(--muted); font-size: 0.9rem; }
+    .chart-wrapper { position: relative; height: 330px; }
+
+    .alerts { margin-top: 24px; }
+    .alerts h2 { margin: 0 0 12px; font-size: 1.1rem; }
+    .alert-list { display: grid; gap: 10px; }
+    .budget-alert {
+      margin: 0;
+      padding: 12px 14px;
+      color: var(--danger);
+      background: var(--danger-bg);
+      border: 1px solid #ffcaca;
+      border-radius: 10px;
+      font-size: 0.93rem;
+    }
+    .all-clear { margin: 0; color: var(--mint); font-size: 0.93rem; }
+
+    @media (max-width: 720px) {
+      .page-container { width: min(100% - 24px, 1120px); padding-top: 32px; }
+      .summary-card { padding: 22px; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .chart-wrapper { height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-container">
+    <p class="eyebrow">GlobeTrotter · Trip Planner</p>
+    <h1>Trip Budget &amp; Cost Breakdown</h1>
+    <p class="subtitle">A quick view of your estimated spending across the trip.</p>
+
+    <section class="summary-card" aria-label="Total estimated trip cost">
+      <div>
+        <span class="summary-label">Total Estimated Cost</span>
+        <strong id="totalCost" class="total-cost">₹0</strong>
+      </div>
+      <span class="summary-icon" aria-hidden="true">✈</span>
+    </section>
+
+    <section class="chart-grid" aria-label="Trip budget charts">
+      <article class="chart-card">
+        <h2>Spending by Category</h2>
+        <p class="chart-description">See where your travel budget is going.</p>
+        <div class="chart-wrapper"><canvas id="categoryChart"></canvas></div>
+      </article>
+
+      <article class="chart-card">
+        <h2>Spending per Day</h2>
+        <p class="chart-description">Compare estimated costs for every travel day.</p>
+        <div class="chart-wrapper"><canvas id="dayChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="alerts" aria-live="polite">
+      <h2>Budget Alerts</h2>
+      <div id="budgetAlerts" class="alert-list"></div>
+    </section>
+  </main>
+
+  <script>
+    // DUMMY SAMPLE DATA: this lets the page work immediately.
+    // TODO: Replace this with a fetch() call to /trips/<id>/budget
+    // Example later: const tripActivities = await fetch('/trips/123/budget').then(r => r.json());
+    const tripActivities = [
+      { day: "Day 1", city: "Paris", category: "transport", cost: 200 },
+      { day: "Day 1", city: "Paris", category: "stay", cost: 150 },
+      { day: "Day 2", city: "Paris", category: "activities", cost: 80 },
+      { day: "Day 2", city: "Paris", category: "meals", cost: 60 },
+      { day: "Day 3", city: "Rome", category: "transport", cost: 120 }
+    ];
+
+    const DAY_ALERT_THRESHOLD = 5000;
+    const currency = new Intl.NumberFormat("en-IN", {
+      style: "currency", currency: "INR", maximumFractionDigits: 0
+    });
+
+    // Takes activity data and returns totals needed by both charts.
+    function calculateBudgetTotals(activities) {
+      const byCategory = {};
+      const byDay = {};
+
+      activities.forEach(({ day, category, cost }) => {
+        const amount = Number(cost) || 0;
+        byCategory[category] = (byCategory[category] || 0) + amount;
+        byDay[day] = (byDay[day] || 0) + amount;
+      });
+
+      const total = activities.reduce((sum, activity) => sum + (Number(activity.cost) || 0), 0);
+      return { total, byCategory, byDay };
+    }
+
+    function renderBudget(activities) {
+      const { total, byCategory, byDay } = calculateBudgetTotals(activities);
+      document.getElementById("totalCost").textContent = currency.format(total);
+
+      const categoryColors = {
+        transport: "#3d8ed4", stay: "#39a98b", activities: "#f4ae4f", meals: "#9b7bd4"
+      };
+      const categoryLabels = Object.keys(byCategory);
+      const dayLabels = Object.keys(byDay);
+
+      new Chart(document.getElementById("categoryChart"), {
+        type: "pie",
+        data: {
+          labels: categoryLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+          datasets: [{ data: Object.values(byCategory), backgroundColor: categoryLabels.map(label => categoryColors[label] || "#94a3b8"), borderWidth: 3, borderColor: "#fff" }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: context => `${context.label}: ${currency.format(context.raw)}` } } } }
+      });
+
+      new Chart(document.getElementById("dayChart"), {
+        type: "bar",
+        data: { labels: dayLabels, datasets: [{ label: "Estimated Cost", data: Object.values(byDay), backgroundColor: "#3d8ed4", borderRadius: 8, borderSkipped: false }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { callback: value => `₹${Number(value).toLocaleString("en-IN")}` }, grid: { color: "#e7eef1" } }, x: { grid: { display: false } } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => currency.format(context.raw) } } }
+        }
+      });
+
+      renderAlerts(byDay);
+    }
+
+    // Shows a warning for every day whose total is above the chosen limit.
+    function renderAlerts(byDay) {
+      const alertContainer = document.getElementById("budgetAlerts");
+      const overBudgetDays = Object.entries(byDay).filter(([, cost]) => cost > DAY_ALERT_THRESHOLD);
+      alertContainer.innerHTML = overBudgetDays.length
+        ? overBudgetDays.map(([day, cost]) => `<p class="budget-alert">⚠ ${day} is over the ${currency.format(DAY_ALERT_THRESHOLD)} daily budget: ${currency.format(cost)}.</p>`).join("")
+        : '<p class="all-clear">✓ No daily budget alerts. All days are within the set limit.</p>';
+    }
+
+    // Call this one function again after replacing the sample data with API data.
+    renderBudget(tripActivities);
+  </script>
+</body>
+</html>
