@@ -33,10 +33,57 @@
 
   <div class="section-heading trips-heading"><div><p class="eyebrow">Memories in motion</p><h2>Previous Trips</h2></div><a class="inline-link" href="{{ url_for('my_trips') }}">View all trips <i class="icon icon-arrow-right"></i></a></div>
   <div class="trip-grid">
-    {% set trips = [('A coastal escape', 'Amalfi Coast, Italy', '12–18 Sep 2026', 'amalfi'), ('City lights & quiet lanes', 'Kyoto, Japan', '03–10 Apr 2026', 'kyoto-trip'), ('Above the clouds', 'Swiss Alps, Switzerland', '15–21 Jan 2026', 'swiss-trip')] %}
-    {% for name, place, date, seed in trips %}
-    <article class="trip-card"><div class="trip-image"><img src="https://picsum.photos/seed/{{ seed }}/900/570" alt="{{ place }}"><span class="trip-status completed">Completed</span></div><div class="trip-card-body"><p class="trip-location"><i class="icon icon-map-pin"></i> {{ place }}</p><h3>{{ name }}</h3><div class="trip-detail"><span><i class="icon icon-calendar-days"></i> {{ date }}</span><a href="{{ url_for('itinerary_view') }}" aria-label="View trip"><i class="icon icon-arrow-up-right"></i></a></div></div></article>
-    {% endfor %}
+    {% for trip in trips %}
+
+<article class="trip-card">
+
+  <div class="trip-image">
+
+    <img
+      src="https://picsum.photos/seed/{{ trip.name | urlencode }}/900/570"
+      alt="{{ trip.name }}"
+    >
+
+    <span class="trip-status upcoming">
+      Trip
+    </span>
+
+  </div>
+
+  <div class="trip-card-body">
+
+    <p class="trip-location">
+      <i class="icon icon-map-pin"></i>
+      {{ trip.name }}
+    </p>
+
+    <h3>{{ trip.description }}</h3>
+
+    <div class="trip-detail">
+
+      <span>
+        <i class="icon icon-calendar-days"></i>
+        {{ trip.start_date }} → {{ trip.end_date }}
+      </span>
+
+      <a
+        href="{{ url_for('itinerary_view', trip_id=trip.id) }}"
+        aria-label="View trip"
+      >
+        <i class="icon icon-arrow-up-right"></i>
+      </a>
+
+    </div>
+
+  </div>
+
+</article>
+
+{% else %}
+
+<p>No trips created yet. Start planning your first adventure!</p>
+
+{% endfor %}
   </div>
 </section>
 <a class="floating-action" href="{{ url_for('create_trip') }}"><i class="icon icon-plus"></i><span>Plan a Trip</span></a>

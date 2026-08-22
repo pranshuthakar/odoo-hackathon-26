@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, redirect, url_for, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from schema import init_db
@@ -40,8 +40,17 @@ def register_page():
 
 @app.get("/dashboard", endpoint="dashboard")
 def dashboard_page():
-    return render_template("dashboard.html")
+    user_id = session.get("user_id")
 
+    if not user_id:
+        return redirect(url_for("login"))
+
+    trips = get_trips_by_user(user_id)
+
+    return render_template(
+        "dashboard.html",
+        trips=trips
+    )
 
 @app.get("/create-trip", endpoint="create_trip")
 def create_trip_page():
